@@ -1,7 +1,4 @@
 import cv2
-import glob
-import matplotlib.image as mpimg
-import matplotlib.pyplot as plt
 import numpy as np
 from moviepy.editor import VideoFileClip
 
@@ -15,50 +12,47 @@ import src.test_curvature as crv
 from PIL import Image
 from PIL import ImageDraw
 
+# define Video File to use
 VIDEO_PATH = '../project_video.mp4'
 VIDEO_OUTPUT = '../output_images/output.mp4'
-#TEST_IMG_PATH = '../test_images/test4.jpg'
-TEST_IMG_PATH = '../test_images/straight_lines1.jpg'
 
-src_pt = np.float32([[560, 480], #533
+# define undistortion points to use
+src_pt = np.float32([[560, 480],
                      [791, 480],
                      [1200, 720],
-                     [247, 720]]) #200
+                     [247, 720]])
 
-dst_pt = np.float32([[280, 400], #280
+dst_pt = np.float32([[280, 400],
                      [1200, 400],
                      [1050, 750],
-                     [280, 750]]) #350
+                     [280, 750]])
 
 
 def process_image(img):
+    """
+    Detect lanes in the image.
+    :param img: the image to detect lanes in
+    :return: the image with detected lanes in
+    """
     img_size = img.shape
     # undistort the image
     undist = cv2.undistort(img, mtx, dist, None, mtx)
 
     # get a binary image using filters and sobel
     binary_output = img_f.get_binary_image(undist)
-
     warped = cv2.warpPerspective(binary_output, M, (img_size[1], img_size[0]), flags=cv2.INTER_LINEAR)
-    # TODO remove
-    #test_print(undist, warped)
 
-    # TODO sanity check the current line
+
+    # sanity check the current line
     if lline.sanity_check() and rline.sanity_check():
         # use existing line to find line in the next frame
         left_fit, right_fit, left_fitx, right_fitx, ploty, result, left_lane_pts, right_lane_pts = els.existing_line_search(warped,
                                                                                              lline.recent_fits[-1],
                                                                                              rline.recent_fits[-1],
                                                                                              margin=100)
-        #sw.test_print_lanes(result, left_fitx, right_fitx, ploty)
     else:
-        # reset the lines and search again if lane are lost
-
-        # search for inital lines
+        # search for inital lines or reset the lines and search again if lane are lost
         left_fit, right_fit, left_fitx, right_fitx, ploty, result, left_lane_pts, right_lane_pts = sw.sliding_window(warped)
-
-        # TODO remove
-        #sw.test_print_lanes(result, left_fitx, right_fitx, ploty)
 
     # update lanes
     lline.update_line(line_fit=left_fit, line_fitx=left_fitx, line_fity=ploty, lane_pts=left_lane_pts)
@@ -81,31 +75,15 @@ def process_image(img):
 
 
 def main():
-    # TODO remove
-    # get test images
-    test_imgs = glob.glob(TEST_IMG_PATH)
-
+    """
+    Main method of the programm.
+    :return:
+    """
+    # detect lanes in the video file
     white_output = VIDEO_OUTPUT
     clip1 = VideoFileClip(VIDEO_PATH)
     white_clip = clip1.fl_image(process_image)
     white_clip.write_videofile(white_output, audio=False)
-
-    # TODO remove
-    # run on test images
-    # for img_path in test_imgs:
-    #     img = mpimg.imread(img_path)
-    #     process_image(img)
-
-# TODO remove
-def test_print(before_img, after_img):
-    f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 9))
-    f.tight_layout()
-    ax1.imshow(before_img)
-    ax1.set_title('Original Image', fontsize=50)
-    ax2.imshow(after_img, cmap='gray')
-    ax2.set_title('Undistorted Image', fontsize=50)
-    plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
-    plt.show()
 
 if __name__ == '__main__':
     # initialize camera undistortion
@@ -116,7 +94,7 @@ if __name__ == '__main__':
     # initialize line
     lline = Line()
     rline = Line()
+
     # run
     main()
-    print(mean_rad/1261)
 

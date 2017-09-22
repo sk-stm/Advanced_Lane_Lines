@@ -5,11 +5,11 @@ N = 10
 class Line():
     """
     Define a class to receive the characteristics of each line detection
+    :ivar detected: was the line detected in the last iteration?
+    :ivar recent_xfitted: x values of the last n fits of the line
     """
     def __init__(self):
-        # was the line detected in the last iteration?
         self.detected = False
-        # x values of the last n fits of the line
         self.recent_xfitted = []
         # average x values of the fitted line over the last n iterations
         self.bestx = None
