@@ -22,7 +22,7 @@ The goals / steps of this project are the following:
 [image4]: ./output_images/lane_warping.png "Warp Example"
 [image5]: ./output_images/line_fit.jpg "Fit Visual"
 [image6]: ./output_images/back_projected.jpg "Output"
-[video1]: ./output_images/final_output.mp4 "Video"
+[video1]: ./output_images/output.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 ---
@@ -128,7 +128,7 @@ I implemented this step in lines 18 through 32 in my code in `img_projector.py` 
 ---
 ### Pipeline (video)
 
-Here's a [link to my video result](./output_images/final_output.mp4)
+Here's a [link to my video result](./output_images/output.mp4)
 ---
 
 ### Discussion
