@@ -1,5 +1,5 @@
 import numpy as np
-import src.test_curvature as crv
+import src.calc_curvature as crv
 
 # history size in frames
 N = 10

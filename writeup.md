@@ -19,10 +19,10 @@ The goals / steps of this project are the following:
 [image1]: ./output_images/camera_cali.png "Undistorted"
 [image2]: ./output_images/test_undistort.png "Road Transformed"
 [image3]: ./output_images/binary.png "Binary Example"
-[image4]: ./examples/warped_straight_lines.jpg "Warp Example"
+[image4]: ./output_images/lane_warping.png "Warp Example"
 [image5]: ./output_images/line_fit.jpg "Fit Visual"
 [image6]: ./output_images/back_projected.jpg "Output"
-[video1]: ./project_video.mp4 "Video"
+[video1]: ./output_images/final_output.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 ---
@@ -67,13 +67,13 @@ as well as the transformation matrix and the size of the image.  I chose the har
 
 ```python
 src_pt = np.float32([[img_size[1]*7/16, img_size[0]*2/3],
-                     [img_size[1]*10/16, img_size[0]*2/3],
+                     [img_size[1]*79/128, img_size[0]*2/3],
                      [img_size[1]*15/16, img_size[0]],
-                     [img_size[1]*3/16, img_size[0]]])
+                     [img_size[1]*247/1280, img_size[0]]])
 
 dst_pt = np.float32([[img_size[1]*7/32, img_size[0]*5/9],
                      [img_size[1]*15/16, img_size[0]*5/9],
-                     [img_size[1]*25/32, img_size[0]],
+                     [img_size[1]*105/128, img_size[0]],
                      [img_size[1]*7/32, img_size[0]]])
 ```
 
@@ -82,13 +82,13 @@ This resulted in the following source and destination points:
 | Source        | Destination   | 
 |:-------------:|:-------------:| 
 | 560, 480      | 280, 400        | 
-| 800, 480      | 1200, 400      |
-| 1200, 720     | 1000, 720      |
-| 240, 720      | 280, 720        |
+| 791, 480      | 1200, 400      |
+| 1200, 720     | 1050, 720      |
+| 247, 720      | 280, 720        |
 
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a 
 test image and its warped counterpart to verify that the lines appear parallel in the warped image.
-TODO
+
 ![alt text][image4]
 
 Then I use a sanity check to see if the lanes were found in the last time step. The ckeck is done in line
@@ -107,9 +107,17 @@ So the fittet lines look like this:
 
 ![alt text][image5]
 
-#### Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
-TODO
-I did this in lines # through # in my code in `my_other_file.py`
+#### Here I describe how and where I calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
+
+I calculated the line curvature in the file `calc_curvature` in lines 5 to 14. Note that I used the 
+suggested road parameters from the project preparation to transfer the pixel values to meters.
+This procedure I did for the left and right lanes and then I calculated the mean of both curvatures.
+This way I get the approximate curvature the car is actually driving.
+I did this during the update of the lines in line 61 in my code in `line.py`.
+the other function `calc_dist` in `calc_curvature.py` calculated the distance of the car from the middle of the road,
+given that the camera is exactly in the middle of the car and directly pointing ahead in a 90° angle from the lanes.
+Tha calculation is started in line 66 of the `main.py`. 
+
 
 #### Here I provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
@@ -127,5 +135,15 @@ Here's a [link to my video result](./output_images/final_output.mp4)
 
 #### Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.
 
-My pipeline is robust on sections of the street where 
-TODO
+My pipeline is robust on sections of the street where the lane lines are clearly visible and continuous. 
+The crutual part is the edge detection and the filtering because a very good filtered image with clear and visible
+lines is very easy to fit with a polynomial. However if there is noise in the image, the detection is much more
+difficult. And this is where my approach can be improved. On parts of the video, where the lanes are covered by
+shadowes or are indistinguishable from the rest of the road, the estimation can fail. I introduced smoothing over
+the last 10 frames to overcome short passages, where this might happen. However on longer sections this approach
+still might fail. To overcome this, one could use the knowledge about the road and it's width to further narrow
+down the search area for the other lane if one lane was found. One could consider introducing a confidence score
+for each lane, that measures, how certain the lane was tracked (for example using the standard deviation of the last
+lane parameters or similar). This score can be used to predict a lane that is uncertain. That way, is one lane was
+found very uncertain, the other lane might be used to better predict the untertain one since they are always considered
+to be parallel.

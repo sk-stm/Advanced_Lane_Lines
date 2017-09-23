@@ -14,3 +14,13 @@ def cal_rad(fitx, ploty):
     curverad = ((1 + (2*left_fit_cr[0]*y_eval*ym_per_pix + left_fit_cr[1])**2)**1.5) / np.absolute(2*left_fit_cr[0])
 
     return curverad
+
+def cal_dist(lfitx, rfitx, img_width):
+    # Define conversions in x and y from pixels space to meters
+    xm_per_pix = 3.7 / 700  # meters per pixel in x dimension
+
+    img_middlex = img_width/2
+    car_posx = abs(rfitx - lfitx)/2 + lfitx
+    dist = abs(img_middlex - car_posx)
+    dist_m = dist * xm_per_pix
+    return dist_m

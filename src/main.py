@@ -8,8 +8,9 @@ import src.sliding_window as sw
 import src.existing_line_search as els
 from src.line import Line
 import src.img_projector as img_pr
-from PIL import Image
-from PIL import ImageDraw
+
+
+import src.calc_curvature as cvr
 
 # define Video File to use
 VIDEO_PATH = '../project_video.mp4'
@@ -30,13 +31,13 @@ def process_image(img):
 
     # define undistortion points to use
     src_pt = np.float32([[img_size[1]*7/16, img_size[0]*2/3],
-                         [img_size[1]*10/16, img_size[0]*2/3],
+                         [img_size[1]*79/128, img_size[0]*2/3],
                          [img_size[1]*15/16, img_size[0]],
-                         [img_size[1]*3/16, img_size[0]]])
+                         [img_size[1]*247/1280, img_size[0]]])
 
     dst_pt = np.float32([[img_size[1]*7/32, img_size[0]*5/9],
                          [img_size[1]*15/16, img_size[0]*5/9],
-                         [img_size[1]*25/32, img_size[0]],
+                         [img_size[1]*105/128, img_size[0]],
                          [img_size[1]*7/32, img_size[0]]])
 
     # transforming the image to top down view
@@ -62,29 +63,15 @@ def process_image(img):
     result = img_pr.project_back(img, undist, warped, Minv, lline.bestx, rline.bestx, ploty)
 
     mean_rad = (abs(lline.radius_of_curvature) + abs(rline.radius_of_curvature))/2
+    car_dist = cvr.cal_dist(left_fitx[-1], right_fitx[-1], img_size[1])
 
-    image_result = Image.fromarray(result)
-    draw = ImageDraw.Draw(image_result)
-    draw.text((0, 0), "Radius of Curvature = " + str(mean_rad), (255, 255, 255))
-    image_result.save('sample-out.jpg')
+    # update lines distances
+    lline.line_base_pos =  car_dist
+    rline.line_base_pos = car_dist
+    lline.radius_of_curvature = mean_rad
+    rline.radius_of_curvature = mean_rad
 
     return result
-
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-
-TEST_IMG_PATH = '../test_images/test3.jpg'
-#TEST_IMG_PATH = '../camera_cal/calibration1.jpg'
-
-def test_print(before_img, after_img):
-    f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 9))
-    f.tight_layout()
-    ax1.imshow(before_img)
-    ax1.set_title('Original Image', fontsize=50)
-    ax2.imshow(after_img, cmap='gray')
-    ax2.set_title('Undistorted Image', fontsize=50)
-    plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
-    plt.show()
 
 def main():
     """
@@ -92,14 +79,10 @@ def main():
     :return:
     """
     # detect lanes in the video file
-    #white_output = VIDEO_OUTPUT
-    #clip1 = VideoFileClip(VIDEO_PATH)
-    #white_clip = clip1.fl_image(process_image)
-    #white_clip.write_videofile(white_output, audio=False)
-
-    img = mpimg.imread(TEST_IMG_PATH)
-    process_image(img)
-
+    white_output = VIDEO_OUTPUT
+    clip1 = VideoFileClip(VIDEO_PATH)
+    white_clip = clip1.fl_image(process_image)
+    white_clip.write_videofile(white_output, audio=False)
 
 if __name__ == '__main__':
     # initialize camera undistortion
