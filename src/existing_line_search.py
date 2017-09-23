@@ -7,7 +7,6 @@ from PIL import Image
 def plot_existing_line(result, left_fitx: np.array, right_fitx: np.array, ploty: np.array):
     """
     Convenience function to plot the lines.
-    :return:
     """
     im = Image.fromarray(np.array(result, dtype=np.uint8))
     plt.imshow(im)
@@ -26,7 +25,7 @@ def existing_line_search(binary_warped: np.array, left_fit: np.array, right_fit:
     :param left_fit: left line fit
     :param right_fit: right line fit
     :param margin: the margin to search in near the actual line.
-    :return:
+    :return: line fittings (left, right), line x pixels (left, right), line y pixels (for both the same), result picture
     """
     nonzero = binary_warped.nonzero()
     nonzeroy = np.array(nonzero[0])
@@ -76,4 +75,4 @@ def existing_line_search(binary_warped: np.array, left_fit: np.array, right_fit:
     cv2.fillPoly(window_img, np.int_([right_line_pts]), (0, 255, 0))
     result = cv2.addWeighted(out_img, 1, window_img, 0.1, 0)
 
-    return [left_fit, right_fit, left_fitx, right_fitx, ploty, result, left_line_pts, right_line_pts]
+    return [left_fit, right_fit, left_fitx, right_fitx, ploty, result]

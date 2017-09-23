@@ -11,7 +11,6 @@ def test_print_lanes(out_img, left_fitx: np.array, right_fitx: np.array, ploty: 
     :param left_fitx: left lane fit
     :param right_fitx: right lane fit
     :param ploty: y coordinates of the fit
-    :return:
     """
     im = Image.fromarray(np.array(out_img, dtype=np.uint8))
     plt.imshow(im)
@@ -28,7 +27,7 @@ def sliding_window(binary_warped: np.array):
     This function takes a histogram of the bottom half of the image and gradually searches for
     a line in left and right half using a sliding window approach.
     :param binary_warped:
-    :return:
+    :return: line fittings (left, right), line x pixels (left, right), line y pixels (for both the same), result picture
     """
     histogram = np.sum(binary_warped[binary_warped.shape[0]//2:, :], axis=0)
     # Create an output image to draw on and  visualize the result
@@ -106,4 +105,4 @@ def sliding_window(binary_warped: np.array):
     out_img[lefty, leftx] = [255, 0, 0]
     out_img[righty, rightx] = [0, 0, 255]
 
-    return [left_fit, right_fit, left_fitx, right_fitx, ploty, out_img, left_lane_inds, right_lane_inds]
+    return [left_fit, right_fit, left_fitx, right_fitx, ploty, out_img]

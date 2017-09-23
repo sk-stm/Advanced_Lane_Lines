@@ -3,15 +3,15 @@ import cv2
 
 def project_back(img, undist, warped, Minv: np.array, left_fitx: np.array, right_fitx:np.array, ploty:np.array):
     """
-    Project warped and detected lanes back to riginal image
-    :param img:
-    :param undist:
-    :param warped:
-    :param Minv:
-    :param left_fitx:
-    :param right_fitx:
-    :param ploty:
-    :return:
+    Project warped and detected lanes back to original image
+    :param img: original image
+    :param undist: undistorted image
+    :param warped: warped image to project back
+    :param Minv: inverse projection matrix
+    :param left_fitx: x coordinates of the left lane
+    :param right_fitx: x coordinated of the right lane
+    :param ploty: y coordinates of the lanes
+    :return: back projected image fused the original one
     """
     # draw on pictures
     # Create an image to draw the lines on

@@ -99,7 +99,7 @@ def _color_thresh(img, thresh=(170, 255)):
 
 def get_binary_image(image: np.array):
     """
-    Allpies all filters to the image to create a binary image with only the unfiltered pixels remaining.
+    Applies all filters to the image to create a binary image with only the unfiltered pixels remaining.
     The filters are tuned for lane detection
     :param image: image to filter
     :return: filtered image
