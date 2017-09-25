@@ -21,6 +21,6 @@ def cal_dist(lfitx, rfitx, img_width):
 
     img_middlex = img_width/2
     car_posx = abs(rfitx - lfitx)/2 + lfitx
-    dist = abs(img_middlex - car_posx)
+    dist = img_middlex - car_posx
     dist_m = dist * xm_per_pix
     return dist_m

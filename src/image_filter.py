@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-import matplotlib.image as mpimg
+
 
 def _abs_sobel_thresh(img, orient='x', thresh=(0, 255), sobel_kernel = 3):
     """
@@ -31,7 +31,7 @@ def _abs_sobel_thresh(img, orient='x', thresh=(0, 255), sobel_kernel = 3):
     return sbinary
 
 
-def _mag_thresh(img, mag_thresh=(0, 255)):
+def _mag_thresh(img, sobel_kernel:int, mag_thresh=(0, 255)):
     """
     Filters img by applying sobel operator in both directions and the filtering the magnitude of the gradient
     :param img: image to filter
@@ -41,8 +41,8 @@ def _mag_thresh(img, mag_thresh=(0, 255)):
     # Convert to grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     # Take the gradient in x and y separately
-    sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0)
-    sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1)
+    sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=sobel_kernel)
+    sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=sobel_kernel)
     # Calculate the magnitude
     abs_xy = np.sqrt(np.square(sobelx) + np.square(sobely))
     # Scale to 8-bit (0 - 255) and convert to type = np.uint8
@@ -78,6 +78,7 @@ def _dir_threshold(img, sobel_kernel=3, thresh=(0, np.pi / 2)):
     # Return this mask as your binary_output image
     return bi
 
+
 def _color_thresh(img, thresh=(170, 255)):
     """
     Filters the image by color in the S channel of HLS color scale.
@@ -89,7 +90,6 @@ def _color_thresh(img, thresh=(170, 255)):
     # Note: img is the undistorted image
     hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
     s_channel = hls[:, :, 2]
-
     # Threshold color channel
     s_binary = np.zeros_like(s_channel)
     s_binary[(s_channel >= thresh[0]) & (s_channel <= thresh[1])] = 1
@@ -106,12 +106,11 @@ def get_binary_image(image: np.array):
     """
     # apply the filters
     gradx = _abs_sobel_thresh(image, orient='x', sobel_kernel=3, thresh=(50, 100))
-    grady = _abs_sobel_thresh(image, orient='y', sobel_kernel=3, thresh=(20, 100))
-    mag_binary = _mag_thresh(image, mag_thresh=(30, 100))
-    dir_binary = _dir_threshold(image, sobel_kernel=15, thresh=(0.7, 1.3))
-    s_binary = _color_thresh(image, thresh=(170, 255))
-
+    grady = _abs_sobel_thresh(image, orient='y', sobel_kernel=3, thresh=(30, 100))
+    mag_binary = _mag_thresh(image, sobel_kernel=9, mag_thresh=(60, 100))
+    s_binary = _color_thresh(image, thresh=(145, 235)) # 145, 235
     # combine the filters
-    combined = np.zeros_like(dir_binary)
-    combined[((gradx == 1) & (grady == 1)) | ((mag_binary == 1) & (dir_binary == 1)) | (s_binary == 1)] = 1
+    combined = np.zeros_like(s_binary)
+    combined[((gradx == 1) & (grady == 1)) | (mag_binary == 1) | (s_binary == 1)] = 1
+
     return combined

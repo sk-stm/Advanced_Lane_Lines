@@ -43,10 +43,10 @@ class Line():
         if line_fit.any():
             self.detected = True
             self.recent_fits.append(line_fit)
-            self.diffs = self.recent_fits[-1] - line_fit
-            self.best_fit_cum += line_fit
+            if len(self.recent_fits) > N:
+                self.recent_fits.pop(0)
             self.current_fit = line_fit
-            self.best_fit = self.best_fit_cum/len(self.recent_fits)
+            self.best_fit = np.average(self.recent_fits, axis=0)
         else:
             self.detected = False
 
@@ -56,6 +56,7 @@ class Line():
             if len(self.recent_xfitted) > N:
                 self.recent_xfitted.pop(0)
             self.bestx = np.average(self.recent_xfitted, axis=0)
+            self.diffs = np.sum(self.bestx - line_fitx)
 
         # calc radius
         self.radius_of_curvature = crv.cal_rad(self.bestx, line_fity)
@@ -71,5 +72,5 @@ class Line():
         """
         res = True
         res = res and self.detected
-        res = res and np.sum(self.diffs) < 1  # experimental value
+        res = res and np.sum(self.diffs) < 30000  # experimental value
         return res

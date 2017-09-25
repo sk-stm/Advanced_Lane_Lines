@@ -49,8 +49,8 @@ def process_image(img):
     if lline.sanity_check() and rline.sanity_check():
         # use existing line to find line in the next frame
         left_fit, right_fit, left_fitx, right_fitx, ploty, result = els.existing_line_search(warped,
-                                                                                             lline.recent_fits[-1],
-                                                                                             rline.recent_fits[-1],
+                                                                                             lline.best_fit,
+                                                                                             rline.best_fit,
                                                                                              margin=100)
     else:
         # search for inital lines or reset the lines and search again if lane are lost
@@ -66,10 +66,15 @@ def process_image(img):
     car_dist = cvr.cal_dist(left_fitx[-1], right_fitx[-1], img_size[1])
 
     # update lines distances
-    lline.line_base_pos =  car_dist
+    lline.line_base_pos = car_dist
     rline.line_base_pos = car_dist
     lline.radius_of_curvature = mean_rad
     rline.radius_of_curvature = mean_rad
+
+    cv2.putText(result, "Radius of Curvature = " + str(mean_rad),
+                (10, 50), cv2.FONT_HERSHEY_PLAIN, fontScale=2, color=(255, 255, 255))
+    dist_str = "Vehicle is " + str(-car_dist) + " right off the center." if car_dist < 0 else "Vehicle is " + str(car_dist) + " left off the center."
+    cv2.putText(result, dist_str, (10, 100), cv2.FONT_HERSHEY_PLAIN, fontScale=2, color=(255, 255, 255))
 
     return result
 
